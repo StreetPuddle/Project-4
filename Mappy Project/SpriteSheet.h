@@ -8,18 +8,20 @@ class Sprite
 {
 	friend int collided(int x, int y);
 	friend bool endValue( int x, int y );
+	friend int topCollision(int x, int y, int frameWidth, int frameHeight);
+	friend int bottomCollision(int x, int y, int frameWidth, int frameHeight);
+	friend int rightCollision(int x, int y, int frameWidth, int frameHeight);
+	friend int leftCollision(int x, int y, int frameWidth, int frameHeight);
 public:
 	Sprite();
 	~Sprite();
 	void InitSprites(int width, int height);
 	void UpdateSprites(int width, int height, int dir); //dir 1 = right, 0 = left, 2 = Standing Still
 	void DrawSprites(int xoffset, int yoffset);
-	bool CollideSprite();
 	float getX() {return x;}
 	float getY() {return y;}
 	int getWidth() {return frameWidth;}
 	int getHeight() {return frameHeight;}
-	int jumping(int jump, const int JUMPIT);
 	bool CollisionEndBlock();
 
 private:

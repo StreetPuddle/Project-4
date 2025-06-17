@@ -33,17 +33,17 @@ void Sprite::UpdateSprites(int width, int height, int dir)
 	int oldy = y;
 	
 
-	if (dir == 1 || dir == 0) { //right key
+	if (dir == 1 || dir == 0) {//animate left or right
 
-		if (dir == 1) {
+		if (dir == 1) {//left
 			animationDirection = dir;
 			speed = 2;
 		}
-		else {
+		else {//right
 			animationDirection = dir;
 			speed = -2;
 		}
-		directionalFrames[0] = 6;
+		directionalFrames[0] = 6;//frames flip depending on direction
 		directionalFrames[1] = 7;
 		directionalFrames[2] = 8;
 		x += speed;
@@ -51,14 +51,13 @@ void Sprite::UpdateSprites(int width, int height, int dir)
 		{
 			frameCount = 0;
 			curFrame = directionalFrames[index];
-			std::cout << "Index: " << index << endl;
 			index++;
 			if (index > 2) {
 				index = 0;
 			}
 		}
 	}
-	else if (dir == 4) {
+	else if (dir == 4) {//animate moving down
 		animationDirection = dir;
 		directionalFrames[0] = 0;
 		directionalFrames[1] = 1;
@@ -68,14 +67,13 @@ void Sprite::UpdateSprites(int width, int height, int dir)
 		{
 			frameCount = 0;
 			curFrame = directionalFrames[index];
-			std::cout << "Index: " << index << endl;
 			index++;
 			if (index > 2) {
 				index = 0;
 			}
 		}
 	}
-	else if (dir == 3) {
+	else if (dir == 3) {//animate moving up
 		animationDirection = dir;
 		directionalFrames[0] = 3;
 		directionalFrames[1] = 4;
@@ -85,7 +83,6 @@ void Sprite::UpdateSprites(int width, int height, int dir)
 		{
 			frameCount = 0;
 			curFrame = directionalFrames[index];
-			std::cout << "Index: " << index << endl;
 			index++;
 			if (index > 2) {
 				index = 0;
@@ -93,32 +90,40 @@ void Sprite::UpdateSprites(int width, int height, int dir)
 		}
 	}
 	else {
-		// Standing still
-		index = 0; // Reset walk animation index
-		frameCount = 0;
-
-		switch (animationDirection) {
-		case 0: curFrame = 7; break; // Standing Left
-		case 1: curFrame = 7; break; // Standing Right (will be flipped in draw)
-		case 2: curFrame = 4; break; // Standing Up
-		case 3: curFrame = 1; break; // Standing Down
+		switch (animationDirection) {//standing still
+		case 0: curFrame = 7; break;//face left
+		case 1: curFrame = 7; break;//face right
+		case 3: curFrame = 4; break;//face up
+		case 4: curFrame = 1; break;//face down
 		}
 	}
 	speed = 2;
 	//check for collided with foreground tiles
-	if (animationDirection==0)
+	if (animationDirection==0)//left
 	{ 
-		if (collided(x, y + frameHeight) || collided(x, y)) { //collision detection to the left
-			x = oldx; 
-			y= oldy;
+		if (leftCollision(x, y, frameWidth, frameHeight)) { //collision detection to the left
+			x = oldx + 1;
+			y = oldy;
 		}
-
 	}
-	else if (animationDirection ==1)
+	else if (animationDirection ==1)//right
 	{ 
-		if (collided(x + frameWidth, y + frameHeight) || collided(x + frameWidth, y)) { //collision detection to the right
-			x = oldx; 
-			y= oldy;
+		if (rightCollision(x, y, frameWidth, frameHeight)) { //collision detection to the right
+			x = oldx - 1;
+			y = oldy;
+		}
+	}
+	else if (animationDirection == 3) {//up
+		if (topCollision(x, y, frameWidth, frameHeight)) {//collision detection to the up
+			x = oldx;
+			y = oldy + 1;
+			//collided(x, y) || collided(x + frameWidth, +y) && collided(x + frameWidth / 2, y)
+		}
+	}
+	else if (animationDirection == 4) {//down
+		if (bottomCollision(x, y, frameWidth, frameHeight)) {//collision detection to the down
+			x = oldx;
+			y = oldy - 1;
 		}
 	}
 }
@@ -140,7 +145,7 @@ void Sprite::DrawSprites(int xoffset, int yoffset)
 		al_draw_bitmap_region(image, fx, fy, frameWidth,frameHeight, x-xoffset, y-yoffset, ALLEGRO_FLIP_HORIZONTAL);
 	}else if (animationDirection == 0 ){//left
 		al_draw_bitmap_region(image, fx, fy, frameWidth,frameHeight, x-xoffset, y-yoffset, 0);
-	}else if (animationDirection == 2 ){
+	}else if (animationDirection == 2 ){//still
 		al_draw_bitmap_region(image,0,0,frameWidth,frameHeight,  x-xoffset, y-yoffset, 0);
 	}
 	else if (animationDirection == 3) {//up

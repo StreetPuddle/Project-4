@@ -8,6 +8,11 @@ using namespace std;
 
 int collided(int x, int y);  //Tile Collision
 bool endValue( int x, int y ); //End Block with the User Value = 8
+int topCollision(int x, int y, int frameWidth, int frameHeight);
+int bottomCollision(int x, int y, int frameWidth, int frameHeight);
+int rightCollision(int x, int y, int frameWidth, int frameHeight);
+int leftCollision(int x, int y, int frameWidth, int frameHeight);
+
 int main(void)
 {
 	const int WIDTH = 900;
@@ -180,10 +185,86 @@ int collided(int x, int y)
 {
 	BLKSTR *blockdata;
 	blockdata = MapGetBlock(x/mapblockwidth, y/mapblockheight);
-	return blockdata->tl;
+	if (blockdata->user1 == 2)
+		return blockdata->tl;
+	else return 0;
 }
 
-bool endValue( int x, int y )
+int leftCollision(int x, int y, int frameWidth, int frameHeight) {
+
+	int tileTopY = y / mapblockheight;
+	int tileBottomY = (y + frameHeight) / mapblockheight;
+	int tileX = (x + frameWidth) / mapblockheight;
+
+	BLKSTR* blockdataTL;
+	blockdataTL = MapGetBlock(tileX, tileTopY);
+	if (blockdataTL && blockdataTL->tl) {
+		return blockdataTL->tl;
+	}
+
+	BLKSTR* blockdataBL;
+	blockdataBL = MapGetBlock(tileX, tileBottomY);
+	if (blockdataBL && blockdataBL->tl) {
+		return blockdataBL->tl;
+	}
+}
+
+int rightCollision(int x, int y, int frameWidth, int frameHeight) {
+
+	int tileTopY = y / mapblockheight;
+	int tileBottomY = (y + frameHeight) / mapblockheight;
+	int tileX = x / mapblockheight;
+
+	BLKSTR* blockdataTL;
+	blockdataTL = MapGetBlock(tileX, tileTopY);
+	if (blockdataTL && blockdataTL->tl) {
+		return blockdataTL->tl;
+	}
+	
+	BLKSTR* blockdataBL;
+	blockdataBL = MapGetBlock(tileX, tileBottomY);
+	if (blockdataBL && blockdataBL->tl) {
+		return blockdataBL->tl;
+	}
+}
+
+int topCollision(int x, int y, int frameWidth, int frameHeight) {
+	
+	//blocks measurements
+	int tileLeftX = x / mapblockwidth;
+	int tileRightX = (x + frameWidth) / mapblockwidth;
+	int tileY = y / mapblockheight;
+
+	BLKSTR* blockdataL = MapGetBlock(tileLeftX, tileY);
+	if (blockdataL->bl)//tests current block's bottom value
+		return blockdataL->bl;
+	
+	BLKSTR* blockdataR = MapGetBlock(tileRightX, tileY);
+	if (blockdataR->bl)
+		return blockdataR->bl;
+
+	return 0;
+}
+
+int bottomCollision(int x, int y, int frameWidth, int frameHeight) {
+
+	//blocks measurements
+	int tileLeftX = x / mapblockwidth;
+	int tileRightX = (x + frameWidth) / mapblockwidth;
+	int tileY = (y + frameHeight) / mapblockheight;
+
+	BLKSTR* blockdataL = MapGetBlock(tileLeftX, tileY);
+	if (blockdataL && blockdataL->tl)//tests current block's bottom value
+		return blockdataL->tl;
+
+	BLKSTR* blockdataR = MapGetBlock(tileRightX, tileY);
+	if (blockdataR && blockdataR->tl)
+		return blockdataR->tl;
+
+	return 0;
+}
+
+bool endValue( int x, int y)
 {
 
 	BLKSTR* data;
