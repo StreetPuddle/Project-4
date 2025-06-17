@@ -26,6 +26,9 @@ private:
 	float x;
 	float y;
 
+	int directionalFrames[3];
+	int index;
+	int speed;
 	int maxFrame;
 	int curFrame;
 	int frameCount;

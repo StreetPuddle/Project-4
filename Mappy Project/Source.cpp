@@ -19,10 +19,6 @@ int main(void)
 	bool render = false;
 	//Player Variable
 	Sprite player;
-	const int JUMPIT=1600;
-	int jump = JUMPIT;
-
-
 
 	//allegro variable
 	ALLEGRO_DISPLAY *display = NULL;
@@ -58,9 +54,11 @@ int main(void)
 
 	al_start_timer(timer);
 	//draw the background tiles
+	MapChangeLayer(1);
 	MapDrawBG(xOff,yOff, 0, 0, WIDTH-1, HEIGHT-1);
 
 	//draw foreground tiles
+	MapChangeLayer(0);
 	MapDrawFG(xOff,yOff, 0, 0, WIDTH-1, HEIGHT-1, 0);
 	player.DrawSprites(0,0);
 	al_flip_display();
@@ -73,9 +71,9 @@ int main(void)
 		{
 			render = true;
 			if(keys[UP])
-				;
+				player.UpdateSprites(WIDTH, HEIGHT, 3);
 			else if(keys[DOWN])
-				;
+				player.UpdateSprites(WIDTH, HEIGHT, 4);
 			else if(keys[LEFT])
 				player.UpdateSprites(WIDTH,HEIGHT,0);
 			else if(keys[RIGHT])
@@ -112,7 +110,6 @@ int main(void)
 				break;
 			case ALLEGRO_KEY_SPACE:
 				keys[SPACE] = true;
-				jump=30;
 
 			}
 		}
@@ -159,11 +156,12 @@ int main(void)
 				yOff = mapheight * mapblockheight - HEIGHT;
 
 			//draw the background tiles
+			MapChangeLayer(1);
 			MapDrawBG(xOff,yOff, 0, 0, WIDTH, HEIGHT);
 
 			//draw foreground tiles
+			MapChangeLayer(0);
 			MapDrawFG(xOff,yOff, 0, 0, WIDTH, HEIGHT, 0);
-			jump=player.jumping(jump,JUMPIT);
 			player.DrawSprites(xOff, yOff);
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0,0,0));
