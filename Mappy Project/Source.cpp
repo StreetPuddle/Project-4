@@ -45,6 +45,7 @@ int main(void)
 	enum KEYS{UP, DOWN, LEFT, RIGHT, SPACE, SHIFT};
 	bool done = false;
 	bool render = false;
+	char mapFile[12];
 	
 	std::vector<int> lastEightKeys;
 
@@ -81,30 +82,33 @@ int main(void)
 
 	int xOff = 0;
 	int yOff = 0;
-	if(MapLoad("sample.fmp", 1))
-		return -5;
+
+	sprintf(mapFile, "sample%d.fmp", level);
+	if (MapLoad(mapFile, 1)) exit(1);//loads fmp/map by level
 
 	event_queue = al_create_event_queue();
-	timer = al_create_timer(1.0 / FPS);
+	timer = al_create_timer(1.0 / FPS);//60fps
 
+	//registering event sources
 	al_register_event_source(event_queue, al_get_timer_event_source(timer));
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
-	al_show_native_message_box(display, "Welcome", "How to Play", "- Move with arrows\n- Hold shift to run\n"
-		"- Cheat Code : Up Up Down Down Left Right, Left, Right", 0, 0);
+
+	//intro to game
+	al_show_native_message_box(display, "Welcome!", "\t\tHow to Play!", "- Move with arrows\n- Hold shift to run\n"
+		"- Enter the barn to complete a level!\n- Cheat Code : Up Up Down Down Left Right Left Right", 0, 0);
+
 	al_start_timer(timer);
-	//draw the background tiles
-	
 	while(!done)
 	{
-		
 		ALLEGRO_EVENT ev;
 		al_wait_for_event(event_queue, &ev);
 		if(ev.type == ALLEGRO_EVENT_TIMER)
 		{
 			timePassed += 1.0 / FPS;//incrementing time counter by 10th of a second
-			countDown = 180.0 - timePassed;//time left
+			countDown = 60.0 - timePassed;//time left
 			render = true;
 
+			//directional movement
 			if (keys[UP])
 				player.UpdateSprites(WIDTH, HEIGHT, 3);
 			else if (keys[DOWN])
@@ -116,11 +120,15 @@ int main(void)
 			else
 				player.UpdateSprites(WIDTH,HEIGHT,2);
 
-			if (player.CollisionEndBlock() || countDown <= 0.0) {//if true, will move onto the next level
-				recordedTImes[level] = timePassed;//record time
+			//block to test if player has reach endBlock or if time has run out to goto next level or finish the game
+			if (player.CollisionEndBlock() || countDown <= 0.0) {
+				recordedTImes[level] = timePassed;//index time it took to complete level
 				level += 2;//next level
 
-				if (level <= 4) {//if a valid level, reset player and timer
+				if (level <= 4) {//if a valid level, loads next fmp file, resets player and timer
+					sprintf(mapFile, "sample%d.fmp", level);
+					if (MapLoad(mapFile, 1)) exit(1);
+
 					if (countDown <= 0.0)
 						al_show_native_message_box(display, "Out of Time", "Time ran out!!", "Onto the next level!", 0, 0);
 					else 
@@ -131,18 +139,17 @@ int main(void)
 					for (int i = 0; i < 6; i++) {//reset keys, otherwise sprite moves during popup
 						keys[i] = false;
 					}
-					countDown = 60.0;
 					timePassed = 0.0;
 				}
 				else//game ends
 				{
 					int lvl = 0;
-					std::ostringstream endResults;//
+					std::ostringstream endResults;
 					endResults << std::fixed << std::setprecision(1);//formats to 0.0 format
 					for (int i = 0; i < 6; ++i) {
 						if (i % 2 == 0) {//times saved at indices 0, 2, and 4
 							lvl++;
-							endResults << "Level " << lvl << ": " << (recordedTImes[i]) << "s\n";
+							endResults << "Level " << lvl << ": " << (recordedTImes[i]) << "s\n\n";
 						}
 					}
 					al_show_native_message_box(display, "Game Over", "Times!", endResults.str().c_str(), 0, 0);
@@ -150,12 +157,15 @@ int main(void)
 				}
 			}
 			render = true;
-
 		}
+
+		//closes the game
 		else if(ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 		{
 			done = true;
 		}
+
+		//key press actions
 		else if(ev.type == ALLEGRO_EVENT_KEY_DOWN)
 		{
 			switch(ev.keyboard.keycode)
@@ -180,12 +190,14 @@ int main(void)
 				break;
 			case ALLEGRO_KEY_LSHIFT:
 				keys[SHIFT] = true;
-				player.setRunningSpeed(2);
+				player.setRunningSpeed(2);//speeds player up
 				break;
 			}
-			lastEightKeys.push_back(ev.keyboard.keycode);
-			enteredCheatCode(lastEightKeys, player, level);
+			lastEightKeys.push_back(ev.keyboard.keycode);//records last keypress
+			enteredCheatCode(lastEightKeys, player, level);//checks if player has entered the cheat code
 		}
+
+		//key release actions
 		else if(ev.type == ALLEGRO_EVENT_KEY_UP)
 		{
 			switch(ev.keyboard.keycode)
@@ -210,9 +222,11 @@ int main(void)
 				break;
 			case ALLEGRO_KEY_LSHIFT:
 				keys[SHIFT] = false;
-				player.setRunningSpeed(0);
+				player.setRunningSpeed(0);//sets player back to walking speed
 			}
 		}
+
+		//render to display
 		if(render && al_is_event_queue_empty(event_queue))
 		{
 			render = false;
@@ -223,11 +237,9 @@ int main(void)
 
 			//avoid moving beyond the map edge
 			if (xOff < 0) xOff = 0;
-
 			if (xOff > (mapwidth * mapblockwidth - WIDTH))
 				xOff = mapwidth * mapblockwidth - WIDTH;
-			if (yOff < 0) 
-				yOff = 0;
+			if (yOff < 0) yOff = 0;
 			if (yOff > (mapheight * mapblockheight - HEIGHT)) 
 				yOff = mapheight * mapblockheight - HEIGHT;
 
@@ -238,6 +250,7 @@ int main(void)
 			//draw foreground tiles
 			MapChangeLayer(level + 1);
 			MapDrawFG(xOff,yOff, 0, 0, WIDTH, HEIGHT, 0);
+
 			player.DrawSprites(xOff, yOff);
 			al_draw_textf(font, al_map_rgb(255,255,255), 308, 5, 0, "TIME LEFT: %.1f", countDown);//visual timer
 			al_flip_display();

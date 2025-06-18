@@ -1,18 +1,17 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_ttf.h>
 #include <iostream>
 using namespace std;
 class Sprite
 {
-	friend int collided(int x, int y);
-	friend bool endValue( int x, int y , int frameHeight, int frameWidth);
-	friend int topCollision(int x, int y, int frameWidth, int frameHeight);
 	friend int bottomCollision(int x, int y, int frameWidth, int frameHeight);
 	friend int rightCollision(int x, int y, int frameWidth, int frameHeight);
 	friend int leftCollision(int x, int y, int frameWidth, int frameHeight);
+	friend int topCollision(int x, int y, int frameWidth, int frameHeight);
+	friend bool endValue(int x, int y, int frameHeight, int frameWidth);
+
 public:
+
 	Sprite();
 	~Sprite();
 	void InitSprites(int width, int height);
@@ -29,9 +28,9 @@ public:
 	bool CollisionEndBlock();
 
 private:
+
 	float x;
 	float y;
-
 	int directionalFrames[3];
 	int index;
 	int speed;

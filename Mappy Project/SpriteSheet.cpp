@@ -104,7 +104,7 @@ void Sprite::UpdateSprites(int width, int height, int dir)
 		case 4: curFrame = 1; break;//face down
 		}
 	}
-	speed = 2;//resets walking speed after play runs
+	speed = 2;//resets walking speed after player stops running
 
 	//check for collided with foreground tiles
 	if (animationDirection==0)
