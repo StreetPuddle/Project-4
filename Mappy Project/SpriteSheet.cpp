@@ -28,7 +28,7 @@ void Sprite::InitSprites(int width, int height)
 	frameHeight = 46;
 	animationColumns = 3;
 	animationDirection = 1;
-	image = al_load_bitmap("spriteSheet3.png");
+	image = al_load_bitmap("spriteSheet.png");
 }
 
 //this function handles the logic of sprite movement in all directions and tests for collision
